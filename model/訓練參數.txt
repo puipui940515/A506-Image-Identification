@@ -1,0 +1,27 @@
+epoch: 30
+
+patience: 5
+
+block: 4 + input +output
+
+drop_out: 0.25
+
+train:val = 8 : 2
+
+data_augmentation = tf.keras.Sequential([
+    layers.RandomFlip("horizontal"),     # 水平翻轉
+    layers.RandomRotation(0.1),          # 旋轉 ±10%
+    layers.RandomZoom(0.1),              # 縮放 ±10%
+    layers.RandomContrast(0.1),          # 對比度 ±10%
+    layers.RandomBrightness(0.1),        # 亮度 ±10%
+    
+    # 使用 Lambda 層手動呼叫 tf.image 函數 (解決 RandomColorDistortion 版本問題)
+    # 飽和度變化 (對不同膚色泛化很有幫助)
+    layers.Lambda(lambda x: tf.image.random_saturation(x, 0.8, 1.2)),
+    # 色相微調
+    layers.Lambda(lambda x: tf.image.random_hue(x, 0.02)),
+]) //2次
+
+VAL_SPLIT_RATIO = 0.2
+BATCH_SIZE = 64
+IMG_SIZE = 128*128
